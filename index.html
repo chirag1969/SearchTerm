@@ -3675,8 +3675,8 @@ const HEADER_ROW_SCORE_GROUPS=(
     ['adgroupname','adgroup'],
     ['portfolioname','portfolio'],
     ['placement'],
-    ['targetingtype','adtype','type'],
-    ['targetingsubtype','matchtype','subtype']
+    ['targetingtype','tagetingtype','adtype','type'],
+    ['targetingsubtype','tagetingsubtype','matchtype','subtype','subtype2','tagetingsubtype2']
   ]
 ).map(group=>group.map(token=>token.toLowerCase().replace(/[^a-z0-9]+/g,'')));
 function scoreHeaderRow(headers){
@@ -3896,9 +3896,9 @@ async function buildStateFromSheetData(sheetData, options={}){
     revenue:    findIndexByTokens(headers,['sales','revenue','totalsales','orderedrevenue','attributedsales']),
     spend:      findIndexByTokens(headers,['spend','adspend','cost','advertisingcost']),
     category:   findIndexByTokens(headers,['category','producttype','cat']),
-    ttype:      findIndexByTokens(headers,['targetingtype','adtype','type']),
-    tsub:       findIndexByTokens(headers,['targetingsubtype','matchtype','subtype']),
-    tsub2:      findIndexByTokens(headers,['subtype2','matchtype2']),
+    ttype:      findIndexByTokens(headers,['targetingtype','tagetingtype','adtype','type']),
+    tsub:       findIndexByTokens(headers,['targetingsubtype','tagetingsubtype','matchtype','subtype']),
+    tsub2:      findIndexByTokens(headers,['subtype2','matchtype2','tagetingsubtype2']),
     targeting:  findIndexByTokens(headers,['targeting']),
     term:       findIndexByTokens(headers,['customersearchterm','searchterm','term']),
     customerType:findIndexByTokens(headers,['customersearchtermtype','searchtermtype']),
