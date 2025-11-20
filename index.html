@@ -2391,6 +2391,36 @@ function applyDatasetOverrides(dataset){
   if(state.hasData) updateAdvertisedProductsDisplay();
 }
 
+function applyDataDrivenOverrides(){
+  removeSingleStorePivot();
+}
+
+function removeSingleStorePivot(){
+  const overview=Array.isArray(PIVOT_CONFIG?.overview)?PIVOT_CONFIG.overview:null;
+  if(!overview || !overview.length) return;
+  const storeIdx=overview.findIndex(cfg=>cfg?.slot==='store');
+  if(storeIdx===-1) return;
+
+  const storeInfo=getSqlInfoForStateKey('store');
+  const loInfo=getSqlInfoForStateKey('lo');
+  const sameDimension = !!(storeInfo?.sqlName && loInfo?.sqlName && storeInfo.sqlName===loInfo.sqlName);
+
+  let distinctStoreCount=0;
+  if(storeInfo?.sqlName && state.sql?.table){
+    try{
+      const row=sqlQueryAll(`SELECT COUNT(DISTINCT "${storeInfo.sqlName}") AS c FROM "${state.sql.table}" WHERE "${storeInfo.sqlName}" IS NOT NULL AND "${storeInfo.sqlName}" <> ''`)[0] || {};
+      distinctStoreCount=Number(row.c)||0;
+    }catch(err){
+      console.warn('Unable to compute distinct store count', err);
+    }
+  }
+
+  if(sameDimension || distinctStoreCount<=1){
+    overview.splice(storeIdx,1);
+    clearPivotFilterState('store');
+  }
+}
+
 function updateTabButtonsForOrder(order){
   if(!el.tabs?.list) return;
   const allowed=new Set(order||[]);
@@ -4039,6 +4069,7 @@ async function buildStateFromSheetData(sheetData, options={}){
   resetConversionPaging();
   buildSqlIndexes();
   buildMonths();
+  applyDataDrivenOverrides();
   const {token:filterToken, remainingKeys}=initFilters({initialKeys:INITIAL_FILTER_KEYS});
   renderAll();
   if(Array.isArray(remainingKeys) && remainingKeys.length){
