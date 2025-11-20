@@ -2523,7 +2523,19 @@ function initDatasetMenu(){
   const menu=el.datasetMenu;
   if(!menu?.list) return;
   const options=getBuiltinDatasetOptions();
+  const hasMultipleOptions = options.length>1;
   menu.list.innerHTML='';
+  if(menu.container){
+    menu.container.hidden = !hasMultipleOptions;
+    menu.container.setAttribute('aria-hidden', hasMultipleOptions?'false':'true');
+  }
+  if(menu.btn){
+    menu.btn.tabIndex = hasMultipleOptions ? 0 : -1;
+    menu.btn.setAttribute('aria-hidden', hasMultipleOptions?'false':'true');
+  }
+  if(!hasMultipleOptions){
+    closeDatasetMenu(false);
+  }
   if(options.length){
     options.forEach(opt=>{
       const button=document.createElement('button');
@@ -3421,6 +3433,18 @@ function showPivotCopySuccess(button){
   copyFeedbackTimers.set(button, timeout);
 }
 function getPivotConfig(){ return PIVOT_CONFIG[state.activeTab] || PIVOT_CONFIG.overview; }
+
+function dedupePivotConfig(config){
+  const seen=new Set();
+  return Array.isArray(config)
+    ? config.filter(cfg=>{
+        const slot=cfg?.slot;
+        if(!slot || seen.has(slot)) return false;
+        seen.add(slot);
+        return true;
+      })
+    : [];
+}
 
 function boot(){
   setHasData(false);
@@ -5975,7 +5999,7 @@ function renderAll(){
   const activeSlots=new Set();
   let anyPivot=false;
 
-  const config=getPivotConfig();
+  const config=dedupePivotConfig(getPivotConfig());
   const visibilities=config.map(({slot,column,fallback,options})=>{
     const target=el.pivot?.[slot];
     if(!target) return false;
