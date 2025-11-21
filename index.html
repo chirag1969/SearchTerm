@@ -212,7 +212,6 @@ body.has-data #tipPill{display:none !important}
 .pivot:not([data-mode="targeting"]) .pivot-conversion{display:none !important}
 @media(min-width:960px){
   .pivot[data-mode="overview"]{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .pivot[data-mode="overview"] #pivotStoreCard,
   .pivot[data-mode="overview"] #pivotPortfolioCard{grid-column:1 / 2;}
   .pivot[data-mode="overview"] #pivotLoCard,
   .pivot[data-mode="overview"] #pivotCatCard{grid-column:2 / 3;}
@@ -541,22 +540,6 @@ body.has-data #tipPill{display:none !important}
 
   <!-- Pivot Table -->
   <section class="pivot" id="pivotSection" hidden>
-  <div class="chart-card pivot-card pivot-overall-left" id="pivotStoreCard">
-    <div class="chart-title">
-      <span class="chart-title-text">Store Performance Pivot</span>
-      <button type="button" class="pivot-action-btn pivot-copy-btn" data-copy-target="pivotTableStore" title="Copy Store Performance Pivot table" aria-label="Copy Store Performance Pivot table">
-        <span class="pivot-copy-icon" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-          <rect x="5" y="5" width="12" height="12" rx="3" ry="3" opacity=".45"></rect>
-          <rect x="8" y="7" width="12" height="12" rx="3" ry="3"></rect>
-        </svg>
-      </span>
-      </button>
-    </div>
-    <div class="pivot-body">
-      <table id="pivotTableStore" class="pivot-table"></table>
-    </div>
-  </div>
   <div class="chart-card pivot-card" id="pivotPortfolioCard">
     <div class="chart-title">
       <span class="chart-title-text">Portfolio Performance Pivot</span>
@@ -2201,7 +2184,6 @@ const el={
   kpis:document.getElementById('kpiSection'),
   pivot:{
     section:document.getElementById('pivotSection'),
-    store:{card:document.getElementById('pivotStoreCard'),table:document.getElementById('pivotTableStore')},
     lo:{card:document.getElementById('pivotLoCard'),table:document.getElementById('pivotTableLo')},
     cat:{card:document.getElementById('pivotCatCard'),table:document.getElementById('pivotTableCat')},
     custType:{card:document.getElementById('pivotCustTypeCard'),table:document.getElementById('pivotTableCustType')},
@@ -2382,6 +2364,7 @@ function applyDatasetOverrides(dataset){
     ensureSlot('campaign','campaign','Campaign Name');
     ensureSlot('adGroup','adgroup','Ad Group Name');
   }
+  PIVOT_CONFIG=normalizePivotConfig(PIVOT_CONFIG);
   updateTabButtonsForOrder(TAB_ORDER);
   if(!TAB_ORDER.includes(state.activeTab)){
     state.activeTab=TAB_ORDER[0] || 'overview';
@@ -2633,7 +2616,6 @@ function clonePivotConfig(source){
 }
 const DEFAULT_PIVOT_CONFIG={
   overview:[
-    {slot:'store', column:'store', fallback:'Store'},
     {slot:'portfolio', column:'portfolio', fallback:'Portfolio Name', options:{caseInsensitive:true}},
     {slot:'lo', column:'lo', fallback:'LO'},
     {slot:'cat', column:'category', fallback:'Category'}
@@ -2656,6 +2638,15 @@ const DEFAULT_PIVOT_CONFIG={
   ]
 };
 let PIVOT_CONFIG=clonePivotConfig(DEFAULT_PIVOT_CONFIG);
+
+function normalizePivotConfig(map){
+  const result={};
+  Object.entries(map||{}).forEach(([tab, config])=>{
+    result[tab]=dedupePivotConfig(config).map(item=>({...item}));
+  });
+  return result;
+}
+PIVOT_CONFIG=normalizePivotConfig(PIVOT_CONFIG);
 const INITIAL_FILTER_KEYS=(()=>{
   const keys=new Set(['term']);
   (DEFAULT_PIVOT_CONFIG.overview||[]).forEach(cfg=>{
