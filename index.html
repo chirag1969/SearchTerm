@@ -1953,13 +1953,15 @@ function handlePivotClearButton(button){
 }
 
 /* ===== helpers ===== */
+const CURRENCY_LOCALE='en-IN';
+const CURRENCY_CODE='INR';
 const fmt={
-  int:n=>isFinite(n)?n.toLocaleString():"—",
-  compact:n=>isFinite(n)?new Intl.NumberFormat(undefined,{notation:'compact',maximumFractionDigits:1}).format(n):"—",
-  pct:r=>isFinite(r)?(r*100).toLocaleString(undefined,{maximumFractionDigits:2})+'%':"—",
-  money:n=>isFinite(n)?n.toLocaleString(undefined,{style:"currency",currency:"USD"}):"—",
-  money0:n=>isFinite(n)?n.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0,minimumFractionDigits:0}):"—",
-  num0:n=>isFinite(n)?new Intl.NumberFormat(undefined,{maximumFractionDigits:0,minimumFractionDigits:0}).format(n):"—"
+  int:n=>isFinite(n)?n.toLocaleString(CURRENCY_LOCALE):"—",
+  compact:n=>isFinite(n)?new Intl.NumberFormat(CURRENCY_LOCALE,{notation:'compact',maximumFractionDigits:1}).format(n):"—",
+  pct:r=>isFinite(r)?(r*100).toLocaleString(CURRENCY_LOCALE,{maximumFractionDigits:2})+'%':"—",
+  money:n=>isFinite(n)?n.toLocaleString(CURRENCY_LOCALE,{style:"currency",currency:CURRENCY_CODE}):"—",
+  money0:n=>isFinite(n)?n.toLocaleString(CURRENCY_LOCALE,{style:"currency",currency:CURRENCY_CODE,maximumFractionDigits:0,minimumFractionDigits:0}):"—",
+  num0:n=>isFinite(n)?new Intl.NumberFormat(CURRENCY_LOCALE,{maximumFractionDigits:0,minimumFractionDigits:0}).format(n):"—"
 };
 const MONTH_NAMES=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const LAST_PUSH_DATE="2025-11-21 11:21:15 +0000";
